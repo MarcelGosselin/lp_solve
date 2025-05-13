@@ -4,7 +4,7 @@
 AppVerName=LPSolve IDE 5.5.2.14
 AppVersion=5.5.2.14
 VersionInfoVersion=5.5.2.14
-AppPublisherURL=http://lpsolve.sourceforge.net/5.5/
+AppPublisherURL=https://github.com/lp-solve/lp_solve
 OutputBaseFilename=LPSolveIDESetup55
 
 AppCopyright=Copyright (C) 1991, 2025 Free Software Foundation, Inc.

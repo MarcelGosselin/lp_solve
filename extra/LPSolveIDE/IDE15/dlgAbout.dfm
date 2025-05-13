@@ -215,7 +215,7 @@ object AboutForm: TAboutForm
       Width = 251
       Height = 13
       Cursor = crHandPoint
-      Caption = 'http://sourceforge.net/projects/lpsolve/files/lpsolve/'
+      Caption = 'https://github.com/lp-solve/lp_solve'
       Color = clBtnFace
       Font.Charset = DEFAULT_CHARSET
       Font.Color = clBlue

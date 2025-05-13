@@ -2862,7 +2862,7 @@ object MainForm: TMainForm
       OnUpdate = acIsNotSolving
     end
     object acHelpOnline: TAction
-      Caption = 'Help http://lpsolve.sourceforge.net/5.5/'
+      Caption = 'Help https://lp-solve.github.io/'
       Hint = 'Help'
       ImageIndex = 30
       ShortCut = 112

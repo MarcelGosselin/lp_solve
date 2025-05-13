@@ -169,7 +169,7 @@
 			<VersionInfoKeys Name="OriginalFilename"></VersionInfoKeys>
 			<VersionInfoKeys Name="ProductName">LPSolve IDE</VersionInfoKeys>
 			<VersionInfoKeys Name="ProductVersion">5.5.2.14</VersionInfoKeys>
-			<VersionInfoKeys Name="Comments">http://sourceforge.net/projects/lpsolve/files/lpsolve/</VersionInfoKeys>
+			<VersionInfoKeys Name="Comments">https://github.com/lp-solve/lp_solve</VersionInfoKeys>
 		</VersionInfoKeys>  <Excluded_Packages>
       <Excluded_Packages Name="C:\Documents and Settings\MRP\My Documents\Borland Studio Projects\Bpl\SynEdit_R2006.bpl">SynEdit component suite runtime</Excluded_Packages>
     </Excluded_Packages>

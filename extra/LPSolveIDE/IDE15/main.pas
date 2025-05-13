@@ -3122,8 +3122,8 @@ begin
 end;
 procedure TMainForm.acHelpOnlineExecute(Sender: TObject);
 begin
-//  HtmlHelp(Application.Handle, 'http://lpsolve.sourceforge.net/5.5/', HH_DISPLAY_TOC, 0);
-  URLshow('http://lpsolve.sourceforge.net/5.5/')
+//  HtmlHelp(Application.Handle, 'https://lp-solve.github.io/', HH_DISPLAY_TOC, 0);
+  URLshow('https://lp-solve.github.io/')
 end;
 procedure TMainForm.acHelpExecute(Sender: TObject);
 begin
