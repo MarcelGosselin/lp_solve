@@ -272,12 +272,10 @@ public class LpSolve {
 	 * Static initializer to load the stub library
 	 */
 	static {
-		String lpSolveJNILibPath = System.getenv("LP_SOLVE_JNI_LIB_PATH");
-		if (lpSolveJNILibPath != null) {
-			// If the environment variable is set, load the library from that path
-			System.load(lpSolveJNILibPath);
+		String lpsolvePath = System.getProperty("lpsolve55j.lib.path");
+		if (lpsolvePath != null) {
+			System.load(lpsolvePath);
 		} else {
-			// Otherwise, assume the library is in the default library path
 			System.loadLibrary("lpsolve55j");
 		}
 		init();
