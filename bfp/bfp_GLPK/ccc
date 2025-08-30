@@ -2,8 +2,8 @@
 
 # Tested with glpk 4.2 and 4.7 and 4.13
 
-# Location where glpk is located.
-glpkdir=/glpk/glpk-4.13
+# Location where glpk is located, defaults to /glpk/glpk-4.13 if not set
+glpkdir=${glpkdir:-/glpk/glpk-4.13}
 
 if [ -f ${glpkdir}/src/glprng.c ]
 then glpk1=${glpkdir}/src/glprng.c

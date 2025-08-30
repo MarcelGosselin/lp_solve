@@ -1,0 +1,109 @@
+name: 'Release'
+
+on:
+  # While testing the workflow it is at every push or manually
+  - push
+  - workflow_dispatch 
+  # push:
+  #   tags:
+  #     - 'v*.*.*'
+
+jobs:
+  determine-version:
+    runs-on: ubuntu-latest
+    outputs:
+      LP_VERSION: ${{ steps.extract-version.outputs.LP_VERSION }}
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Extract Version Number
+      id: extract-version
+      # lp_lib.h contains the version information as:
+      #define MAJORVERSION             5
+      #define MINORVERSION             5
+      #define RELEASE                  2
+      #define BUILD                   14
+      run: |
+        LP_MAJOR=$( sed -n -E 's/^\s*#define\s+MAJORVERSION\s+([0-9]+).*$/\1/p' $GITHUB_WORKSPACE/lp_lib.h )
+        LP_MINOR=$( sed -n -E 's/^\s*#define\s+MINORVERSION\s+([0-9]+).*$/\1/p' $GITHUB_WORKSPACE/lp_lib.h )
+        LP_RELEASE=$( sed -n -E 's/^\s*#define\s+RELEASE\s+([0-9]+).*$/\1/p' $GITHUB_WORKSPACE/lp_lib.h )
+        LP_BUILD=$( sed -n -E 's/^\s*#define\s+BUILD\s+([0-9]+).*$/\1/p' $GITHUB_WORKSPACE/lp_lib.h )
+        LP_VERSION=$LP_MAJOR.$LP_MINOR.$LP_RELEASE.$LP_BUILD
+        echo "Version is $LP_VERSION"
+        echo "LP_VERSION=$LP_VERSION" >> "$GITHUB_OUTPUT"
+  
+  build-ux64:
+    needs: determine-version
+    runs-on: ubuntu-latest
+    
+    env:
+      LP_VERSION: ${{ needs.determine-version.outputs.LP_VERSION }}
+      PLATFORM_FOLDER: 'ux64'
+      # set glpkdir to where glpk is located, used in bfp/bfp_GLPK/ccc
+      glpkdir: ${{ github.workspace }}/dependencies/glpk
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Install missing dependencies
+      run: |
+        set -v # echo commands
+        
+        # bfp/bfp_GLPK/ccc expects glpk to be installed in dependencies/glpk
+        mkdir -p $glpkdir
+        curl -s -L https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-4.13.tar.gz | tar -xvz -C $glpkdir --strip-components=1
+
+    - name: Build lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+        
+        PACKAGE_FOLDER=output/dev_${{ env.PLATFORM_FOLDER }}
+        mkdir -p $PACKAGE_FOLDER
+        PACKAGE_FOLDER=$( realpath $PACKAGE_FOLDER )
+
+        pushd lpsolve55
+        echo "Building lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
+        sh ccc
+        cp bin/${{ env.PLATFORM_FOLDER }}/* $PACKAGE_FOLDER
+        popd
+
+        echo "Packaging lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
+        cp lp_Hash.h lp_lib.h lp_matrix.h lp_mipbb.h lp_SOS.h lp_types.h lp_utils.h $PACKAGE_FOLDER
+        pushd $PACKAGE_FOLDER
+        tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz *
+
+    - name: Build lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+
+        PACKAGE_FOLDER=output/exe_${{ env.PLATFORM_FOLDER }}
+        mkdir -p $PACKAGE_FOLDER
+        PACKAGE_FOLDER=$( realpath $PACKAGE_FOLDER )
+
+        for i in bfp/bfp_GLPK bfp/bfp_etaPFI bfp/bfp_LUSOL xli/xli_CPLEX xli/xli_LINDO xli/xli_MPS xli/xli_XPRESS lp_solve
+        do
+            echo "Building $i"
+            pushd $i
+            sh ccc
+            if [ "$i" = "lp_solve" ]; then
+                cp bin/${{ env.PLATFORM_FOLDER }}/lp_solve $PACKAGE_FOLDER
+            else
+                cp bin/${{ env.PLATFORM_FOLDER }}/*.so $PACKAGE_FOLDER
+            fi
+            popd
+        done
+
+        pushd $PACKAGE_FOLDER
+        tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz *
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.PLATFORM_FOLDER }}
+        path: |
+          lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
+          lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+
