@@ -107,3 +107,83 @@ jobs:
           lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
           lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
 
+  build-ux32:
+    needs: determine-version
+    runs-on: ubuntu-latest
+
+    env:
+      LP_VERSION: ${{ needs.determine-version.outputs.LP_VERSION }}
+      PLATFORM_FOLDER: 'ux32'
+      CC: "i686-linux-gnu-gcc -m32"
+      # set glpkdir to where glpk is located, used in bfp/bfp_GLPK/ccc
+      glpkdir: ${{ github.workspace }}/dependencies/glpk
+
+    steps:
+
+    - name: Install 32-bit toolchain
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y gcc-i686-linux-gnu binutils-i686-linux-gnu
+
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    # after checkout otherwise folder is not empty
+    - name: Install missing build dependencies
+      run: |
+        set -v # echo commands
+        
+        # bfp/bfp_GLPK/ccc expects glpk to be installed in dependencies/glpk
+        mkdir -p $glpkdir
+        curl -s -L https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-4.13.tar.gz | tar -xvz -C $glpkdir --strip-components=1
+
+    - name: Build lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+        
+        PACKAGE_FOLDER=output/dev_${{ env.PLATFORM_FOLDER }}
+        mkdir -p $PACKAGE_FOLDER
+        PACKAGE_FOLDER=$( realpath $PACKAGE_FOLDER )
+
+        pushd lpsolve55
+        echo "Building lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
+        sh ccc
+        cp bin/${{ env.PLATFORM_FOLDER }}/* $PACKAGE_FOLDER
+        popd
+
+        echo "Packaging lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
+        cp lp_Hash.h lp_lib.h lp_matrix.h lp_mipbb.h lp_SOS.h lp_types.h lp_utils.h $PACKAGE_FOLDER
+        pushd $PACKAGE_FOLDER
+        tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz *
+
+    - name: Build lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+
+        PACKAGE_FOLDER=output/exe_${{ env.PLATFORM_FOLDER }}
+        mkdir -p $PACKAGE_FOLDER
+        PACKAGE_FOLDER=$( realpath $PACKAGE_FOLDER )
+
+        for i in bfp/bfp_GLPK bfp/bfp_etaPFI bfp/bfp_LUSOL xli/xli_CPLEX xli/xli_LINDO xli/xli_MPS xli/xli_XPRESS lp_solve
+        do
+            echo "Building $i"
+            pushd $i
+            sh ccc
+            if [ "$i" = "lp_solve" ]; then
+                cp bin/${{ env.PLATFORM_FOLDER }}/lp_solve $PACKAGE_FOLDER
+            else
+                cp bin/${{ env.PLATFORM_FOLDER }}/*.so $PACKAGE_FOLDER
+            fi
+            popd
+        done
+
+        pushd $PACKAGE_FOLDER
+        tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz *
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.PLATFORM_FOLDER }}
+        path: |
+          lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
+          lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
