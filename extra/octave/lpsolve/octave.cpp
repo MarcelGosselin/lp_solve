@@ -15,7 +15,7 @@ void Printf(char *format, ...)
 
 int ErrMsgTxt(structlpsolvecaller *lpsolvecaller, char *str)
 {
-	error(str);
+	error("%s", str);
         exitnow(lpsolvecaller);
 
         return(0);
