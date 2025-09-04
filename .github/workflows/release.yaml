@@ -64,15 +64,15 @@ jobs:
         mkdir -p $PACKAGE_FOLDER
         PACKAGE_FOLDER=$( realpath $PACKAGE_FOLDER )
 
-        pushd lpsolve55
+        pushd lpsolve55 > /dev/null
         echo "Building lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
         sh ccc
         cp bin/${{ env.PLATFORM_FOLDER }}/* $PACKAGE_FOLDER
-        popd
+        popd > /dev/null
 
         echo "Packaging lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
         cp lp_Hash.h lp_lib.h lp_matrix.h lp_mipbb.h lp_SOS.h lp_types.h lp_utils.h $PACKAGE_FOLDER
-        pushd $PACKAGE_FOLDER
+        pushd $PACKAGE_FOLDER > /dev/null
         tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz *
 
     - name: Build lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
@@ -86,17 +86,17 @@ jobs:
         for i in bfp/bfp_GLPK bfp/bfp_etaPFI bfp/bfp_LUSOL xli/xli_CPLEX xli/xli_LINDO xli/xli_MPS xli/xli_XPRESS lp_solve
         do
             echo "Building $i"
-            pushd $i
+            pushd $i > /dev/null
             sh ccc
             if [ "$i" = "lp_solve" ]; then
                 cp bin/${{ env.PLATFORM_FOLDER }}/lp_solve $PACKAGE_FOLDER
             else
                 cp bin/${{ env.PLATFORM_FOLDER }}/*.so $PACKAGE_FOLDER
             fi
-            popd
+            popd > /dev/null
         done
 
-        pushd $PACKAGE_FOLDER
+        pushd $PACKAGE_FOLDER > /dev/null
         tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz *
 
     - name: Upload artifacts
@@ -145,15 +145,15 @@ jobs:
         mkdir -p $PACKAGE_FOLDER
         PACKAGE_FOLDER=$( realpath $PACKAGE_FOLDER )
 
-        pushd lpsolve55
+        pushd lpsolve55 > /dev/null
         echo "Building lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
         sh ccc
         cp bin/${{ env.PLATFORM_FOLDER }}/* $PACKAGE_FOLDER
-        popd
+        popd > /dev/null
 
         echo "Packaging lpsolve55 library for platform ${{ env.PLATFORM_FOLDER }}"
         cp lp_Hash.h lp_lib.h lp_matrix.h lp_mipbb.h lp_SOS.h lp_types.h lp_utils.h $PACKAGE_FOLDER
-        pushd $PACKAGE_FOLDER
+        pushd $PACKAGE_FOLDER > /dev/null
         tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz *
 
     - name: Build lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
@@ -167,17 +167,17 @@ jobs:
         for i in bfp/bfp_GLPK bfp/bfp_etaPFI bfp/bfp_LUSOL xli/xli_CPLEX xli/xli_LINDO xli/xli_MPS xli/xli_XPRESS lp_solve
         do
             echo "Building $i"
-            pushd $i
+            pushd $i > /dev/null
             sh ccc
             if [ "$i" = "lp_solve" ]; then
                 cp bin/${{ env.PLATFORM_FOLDER }}/lp_solve $PACKAGE_FOLDER
             else
                 cp bin/${{ env.PLATFORM_FOLDER }}/*.so $PACKAGE_FOLDER
             fi
-            popd
+            popd > /dev/null
         done
 
-        pushd $PACKAGE_FOLDER
+        pushd $PACKAGE_FOLDER > /dev/null
         tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz *
 
     - name: Upload artifacts
@@ -208,7 +208,8 @@ jobs:
         mkdir -p $PACKAGE_FINAL_FOLDER
 
         # full source
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_source.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_source.tar.gz"
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_source.tar.gz \
             --transform 's,^,lp_solve/,' \
             --exclude-vcs \
             --exclude-vcs-ignores \
@@ -223,7 +224,8 @@ jobs:
         # bfp_*
         for i in etaPFI GLPK LUSOL
         do
-          tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_bfp_${i}_source.tar.gz \
+          echo "Packaging lp_solve_${LP_VERSION}_bfp_${i}_source.tar.gz"
+          tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_bfp_${i}_source.tar.gz \
               --transform 's,^,lp_solve/,' \
               --exclude-vcs-ignores \
               bfp/bfp_${i} \
@@ -233,7 +235,8 @@ jobs:
         # xli_*
         for i in CPLEX LINDO LPFML MathProg MPS XPRESS
         do
-          tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_xli_${i}_source.tar.gz \
+          echo "Packaging lp_solve_${LP_VERSION}_xli_${i}_source.tar.gz"
+          tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_xli_${i}_source.tar.gz \
               --transform 's,^,lp_solve/,' \
               --exclude-vcs-ignores \
               xli/xli_${i} \
@@ -254,7 +257,8 @@ jobs:
         # some from extra (those without specificities)
         for i in Euler FreeMat PHP Python Sysquake
         do
-          tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_${i}_source.tar.gz \
+          echo "Packaging lp_solve_${LP_VERSION}_${i}_source.tar.gz"
+          tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_${i}_source.tar.gz \
               --transform "s,^extra/man,extra/${i}," \
               --transform 's,^,lp_solve/,' \
               --exclude-vcs-ignores \
@@ -263,7 +267,8 @@ jobs:
         done
 
         # extra: AMPL
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_AMPL_source.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_AMPL_source.tar.gz"
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_AMPL_source.tar.gz \
             --transform "s,^extra/man,extra/AMPL/solvers/lpsolve," \
             --transform 's,^,lp_solve/,' \
             --exclude-vcs-ignores \
@@ -271,16 +276,18 @@ jobs:
             extra/man/AMPL.htm
 
         # extra: c
-        pushd extra/c
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_c.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_c.tar.gz"
+        pushd extra/c > /dev/null
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_c.tar.gz \
             --exclude-vcs-ignores \
             --exclude=lp.lp \
             *
-        popd
+        popd > /dev/null
 
         # extra: man => doc
-        pushd extra/man
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_doc.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_doc.tar.gz"
+        pushd extra/man > /dev/null
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_doc.tar.gz \
             --exclude-vcs-ignores \
             --exclude=arv \
             --exclude=Win32 \
@@ -291,10 +298,11 @@ jobs:
             --exclude=man.* \
             --exclude=man0.* \
             *
-        popd
+        popd > /dev/null
 
         # extra/MATLAB
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MATLAB_source.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_MATLAB_source.tar.gz"
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MATLAB_source.tar.gz \
             --transform "s,^extra/man,extra/MATLAB/lpsolve," \
             --transform 's,^,lp_solve/,' \
             --exclude-vcs-ignores \
@@ -302,7 +310,8 @@ jobs:
             extra/man/MATLAB.htm
 
         # extra/octave
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_octave_source.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_octave_source.tar.gz"
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_octave_source.tar.gz \
             --transform "s,^extra/man/octave.htm,extra/octave/lpsolve/Octave.htm," \
             --transform 's,^,lp_solve/,' \
             --exclude-vcs-ignores \
@@ -310,7 +319,8 @@ jobs:
             extra/man/octave.htm
 
         # extra/O-MATRIX
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_OMATRIX_source.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_OMATRIX_source.tar.gz"
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_OMATRIX_source.tar.gz \
             --transform "s,^extra/man,extra/O-MATRIX/lpsolve," \
             --transform 's,^,lp_solve/,' \
             --exclude-vcs-ignores \
@@ -318,7 +328,8 @@ jobs:
             extra/man/O-Matrix.htm
 
         # extra/scilab
-        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_scilab_source.tar.gz \
+        echo "Packaging lp_solve_${LP_VERSION}_scilab_source.tar.gz"
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_scilab_source.tar.gz \
             --transform "s,^extra/man/Scilab.htm,extra/scilab/lpsolve/man/scilab.htm," \
             --transform 's,^,lp_solve/,' \
             --exclude-vcs-ignores \
@@ -328,33 +339,39 @@ jobs:
         # extra: many with zip
         for i in Access cs.net VB.NET
         do
-          pushd extra/${i}
+          echo "Packaging lp_solve_${LP_VERSION}_${i,,}_source.zip"
+          pushd extra/${i} > /dev/null
           # ${i,,} makes the name lowercase
-          zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_${i,,}.zip *
-          popd
+          zip -q $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_${i,,}.zip *
+          popd > /dev/null
         done
 
         # extra Delphi
-        pushd extra/Delphi
-        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_Delphi.zip cppc.bat demo.dpr lp.lp lpsolve.inc lpsolve.pas
-        popd
+        echo "Packaging lp_solve_${LP_VERSION}_Delphi.zip"
+        pushd extra/Delphi > /dev/null
+        zip -q $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_Delphi.zip cppc.bat demo.dpr lp.lp lpsolve.inc lpsolve.pas
+        popd > /dev/null
 
         # extra Excel
-        pushd extra/Excel
-        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_excel.zip demo.xls
-        popd
+        echo "Packaging lp_solve_${LP_VERSION}_excel.zip"
+        pushd extra/Excel > /dev/null
+        zip -q $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_excel.zip demo.xls
+        popd > /dev/null
 
         # extra: IDE
-        pushd extra/LPSolveIDE/IDE15
-        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_IDE_source.zip \
+        echo "Packaging lp_solve_${LP_VERSION}_IDE_source.zip"
+        pushd extra/LPSolveIDE/IDE15 > /dev/null
+        zip -q \
+            $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_IDE_source.zip \
             InnoSetup/L* \
             *.*
-        popd
+        popd > /dev/null
 
         # extra: java
-        pushd extra
-        zip -r $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_java.zip \
-            -D \
+        echo "Packaging lp_solve_${LP_VERSION}_java.zip"
+        pushd extra > /dev/null
+        zip -qrD \
+            $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_java.zip \
             lp_solve_5.5_java/demo \
             lp_solve_5.5_java/demo2 \
             lp_solve_5.5_java/docs \
@@ -365,27 +382,33 @@ jobs:
             lp_solve_5.5_java/README.html \
             -x '*.class' \
             -x '*.log'
-        popd
+        popd > /dev/null
 
         # extra: MSF
-        pushd "extra/MSF"
-        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MSF_source.zip \
-            -r \
+        echo "Packaging lp_solve_${LP_VERSION}_MSF_source.zip"
+        pushd "extra/MSF" > /dev/null
+        zip -qr \
+            $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MSF_source.zip \
             *
-        popd
+        popd > /dev/null
 
         # extra MSF_Demo
-        pushd "extra/MSF 3.0/demo"
-        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MSF_demo.zip \
-          -r \
-          *
-        popd
+        echo "Packaging lp_solve_${LP_VERSION}_MSF_demo.zip"
+        pushd "extra/MSF 3.0/demo" > /dev/null
+        zip -qr \
+            $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MSF_demo.zip \
+            *
+        popd > /dev/null
 
         # extra: vb
-        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_vb.zip \
-            extra/vb/Module1.bas \
-            extra/vb/lpsolve55.cls \
-            extra/vb/demo.vbp
+        echo "Packaging lp_solve_${LP_VERSION}_vb.zip"
+        pushd "extra/vb" > /dev/null
+        zip -q \
+            $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_vb.zip \
+            Module1.bas \
+            lpsolve55.cls \
+            demo.vbp
+        popd > /dev/null
 
     # TODO:
     #   Did not do extra/COM as it is missing lpsolve55COM.dll which we probably need to build
