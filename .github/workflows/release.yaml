@@ -34,6 +34,7 @@ jobs:
         echo "LP_VERSION=$LP_VERSION" >> "$GITHUB_OUTPUT"
   
   build-ux64:
+    if: false # temporarily disable while testing other build parts
     needs: determine-version
     runs-on: ubuntu-latest
 
@@ -109,6 +110,7 @@ jobs:
           lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
 
   build-ux32:
+    if: false # temporarily disable while testing other build parts
     needs: determine-version
     runs-on: ubuntu-latest
 
@@ -426,6 +428,7 @@ jobs:
           output/*.zip
 
   collect-all-artifacts:
+    if: false # temporarily disable while testing other build parts
     runs-on: ubuntu-latest
     needs:
       - build-ux64
