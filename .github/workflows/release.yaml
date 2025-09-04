@@ -34,7 +34,6 @@ jobs:
         echo "LP_VERSION=$LP_VERSION" >> "$GITHUB_OUTPUT"
   
   build-ux64:
-    if: false # temporarily disable while testing other build parts
     needs: determine-version
     runs-on: ubuntu-latest
 
@@ -124,7 +123,7 @@ jobs:
             extra/man/FreeMat.htm
             
     - name: Build lp_solve_${{ env.LP_VERSION }}_MATLAB_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
-      #if: false # C build fails with "cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory"
+      if: false # C build fails with "cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory"
       run: |
         set -v # echo commands
 
@@ -172,7 +171,6 @@ jobs:
           *.tar.gz
 
   build-ux32:
-    if: false # temporarily disable while testing other build parts
     needs: determine-version
     runs-on: ubuntu-latest
 
@@ -286,7 +284,7 @@ jobs:
             extra/man/FreeMat.htm
             
     - name: Build lp_solve_${{ env.LP_VERSION }}_MATLAB_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
-      #if: false # C build fails with "cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory"
+      if: false # C build fails with "cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory"
       run: |
         set -v # echo commands
 
@@ -334,6 +332,7 @@ jobs:
           *.tar.gz
 
   package-sources-and-extra-folder:
+    if: false # temporarily disable while testing other build parts
     needs: determine-version
     runs-on: ubuntu-latest
 
