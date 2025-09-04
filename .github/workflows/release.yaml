@@ -36,7 +36,7 @@ jobs:
   build-ux64:
     needs: determine-version
     runs-on: ubuntu-latest
-    
+
     env:
       LP_VERSION: ${{ needs.determine-version.outputs.LP_VERSION }}
       PLATFORM_FOLDER: 'ux64'
@@ -187,3 +187,215 @@ jobs:
         path: |
           lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
           lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+
+  package-sources-and-extra-folder:
+    needs: determine-version
+    runs-on: ubuntu-latest
+
+    env:
+      LP_VERSION: ${{ needs.determine-version.outputs.LP_VERSION }}
+
+    steps:
+
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Package sources
+      run: |
+        set -v # echo commands
+        
+        PACKAGE_FINAL_FOLDER=$GITHUB_WORKSPACE/output
+        mkdir -p $PACKAGE_FINAL_FOLDER
+
+        # full source
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_source.tar.gz \
+            --transform 's,^,lp_solve/,' \
+            --exclude-vcs \
+            --exclude-vcs-ignores \
+            --exclude=output \
+            --exclude=xli \
+            --exclude=extra \
+            --exclude=.github \
+            --exclude=bfp/bfp_etaPFI \
+            --exclude=bfp/bfp_GLPK \
+            *
+
+        # bfp_*
+        for i in etaPFI GLPK LUSOL
+        do
+          tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_bfp_${i}_source.tar.gz \
+              --transform 's,^,lp_solve/,' \
+              --exclude-vcs-ignores \
+              bfp/bfp_${i} \
+              bfp/*.*
+        done
+
+        # xli_*
+        for i in CPLEX LINDO LPFML MathProg MPS XPRESS
+        do
+          tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_xli_${i}_source.tar.gz \
+              --transform 's,^,lp_solve/,' \
+              --exclude-vcs-ignores \
+              xli/xli_${i} \
+              xli/*.*
+        done
+
+        # xli_DIMACS
+        echo "Packaging lp_solve_${LP_VERSION}_xli_DIMACS_source.tar.gz"
+        tar -czf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_xli_DIMACS_source.tar.gz \
+            --transform "s,^extra/man,xli/xli_DIMACS," \
+            --transform 's,^,lp_solve/,' \
+            --exclude-vcs-ignores \
+            xli/xli_DIMACS \
+            xli/*.* \
+            extra/man/DIMACS_*.htm \
+            extra/man/dimacs_*.gif
+        
+        # some from extra (those without specificities)
+        for i in Euler FreeMat PHP Python Sysquake
+        do
+          tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_${i}_source.tar.gz \
+              --transform "s,^extra/man,extra/${i}," \
+              --transform 's,^,lp_solve/,' \
+              --exclude-vcs-ignores \
+              extra/${i} \
+              extra/man/${i}.htm
+        done
+
+        # extra: AMPL
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_AMPL_source.tar.gz \
+            --transform "s,^extra/man,extra/AMPL/solvers/lpsolve," \
+            --transform 's,^,lp_solve/,' \
+            --exclude-vcs-ignores \
+            extra/AMPL/solvers \
+            extra/man/AMPL.htm
+
+        # extra: c
+        pushd extra/c
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_c.tar.gz \
+            --exclude-vcs-ignores \
+            --exclude=lp.lp \
+            *
+        popd
+
+        # extra: man => doc
+        pushd extra/man
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_doc.tar.gz \
+            --exclude-vcs-ignores \
+            --exclude=arv \
+            --exclude=Win32 \
+            --exclude=*.bat \
+            --exclude=BuildLog.htm \
+            --exclude=HTMLHelp.* \
+            --exclude=lp_solve.hh* \
+            --exclude=man.* \
+            --exclude=man0.* \
+            *
+        popd
+
+        # extra/MATLAB
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MATLAB_source.tar.gz \
+            --transform "s,^extra/man,extra/MATLAB/lpsolve," \
+            --transform 's,^,lp_solve/,' \
+            --exclude-vcs-ignores \
+            extra/MATLAB \
+            extra/man/MATLAB.htm
+
+        # extra/octave
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_octave_source.tar.gz \
+            --transform "s,^extra/man/octave.htm,extra/octave/lpsolve/Octave.htm," \
+            --transform 's,^,lp_solve/,' \
+            --exclude-vcs-ignores \
+            extra/octave \
+            extra/man/octave.htm
+
+        # extra/O-MATRIX
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_OMATRIX_source.tar.gz \
+            --transform "s,^extra/man,extra/O-MATRIX/lpsolve," \
+            --transform 's,^,lp_solve/,' \
+            --exclude-vcs-ignores \
+            extra/O-MATRIX \
+            extra/man/O-Matrix.htm
+
+        # extra/scilab
+        tar -czvf $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_scilab_source.tar.gz \
+            --transform "s,^extra/man/Scilab.htm,extra/scilab/lpsolve/man/scilab.htm," \
+            --transform 's,^,lp_solve/,' \
+            --exclude-vcs-ignores \
+            extra/scilab \
+            extra/man/Scilab.htm
+
+        # extra: many with zip
+        for i in Access cs.net VB.NET
+        do
+          pushd extra/${i}
+          # ${i,,} makes the name lowercase
+          zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_${i,,}.zip *
+          popd
+        done
+
+        # extra Delphi
+        pushd extra/Delphi
+        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_Delphi.zip cppc.bat demo.dpr lp.lp lpsolve.inc lpsolve.pas
+        popd
+
+        # extra Excel
+        pushd extra/Excel
+        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_excel.zip demo.xls
+        popd
+
+        # extra: IDE
+        pushd extra/LPSolveIDE/IDE15
+        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_IDE_source.zip \
+            InnoSetup/L* \
+            *.*
+        popd
+
+        # extra: java
+        pushd extra
+        zip -r $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_java.zip \
+            -D \
+            lp_solve_5.5_java/demo \
+            lp_solve_5.5_java/demo2 \
+            lp_solve_5.5_java/docs \
+            lp_solve_5.5_java/lib \
+            lp_solve_5.5_java/src \
+            lp_solve_5.5_java/CHANGES.txt \
+            lp_solve_5.5_java/LGPL \
+            lp_solve_5.5_java/README.html \
+            -x '*.class' \
+            -x '*.log'
+        popd
+
+        # extra: MSF
+        pushd "extra/MSF"
+        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MSF_source.zip \
+            -r \
+            *
+        popd
+
+        # extra MSF_Demo
+        pushd "extra/MSF 3.0/demo"
+        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_MSF_demo.zip \
+          -r \
+          *
+        popd
+
+        # extra: vb
+        zip $PACKAGE_FINAL_FOLDER/lp_solve_${LP_VERSION}_vb.zip \
+            extra/vb/Module1.bas \
+            extra/vb/lpsolve55.cls \
+            extra/vb/demo.vbp
+
+    # TODO:
+    #   Did not do extra/COM as it is missing lpsolve55COM.dll which we probably need to build
+    #   This generates an *_MSF_demo.zip like version 5.5.2.11 had but 5.5.2.14 does not have
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: sources
+        compression-level: 0 # no compression - already compressed
+        path: |
+          output/*.tar.gz
+          output/*.zip
