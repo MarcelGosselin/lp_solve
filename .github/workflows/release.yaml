@@ -103,6 +103,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.PLATFORM_FOLDER }}
+        compression-level: 0 # no compression - already compressed
         path: |
           lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
           lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
@@ -184,6 +185,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.PLATFORM_FOLDER }}
+        compression-level: 0 # no compression - already compressed
         path: |
           lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
           lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
@@ -422,3 +424,17 @@ jobs:
         path: |
           output/*.tar.gz
           output/*.zip
+
+  collect-all-artifacts:
+    runs-on: ubuntu-latest
+    needs:
+      - build-ux64
+      - build-ux32
+      - package-sources-and-extra-folder
+    steps:
+      - name: Merge Artifacts
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: release-files
+          delete-merged: true
+          compression-level: 0 # no compression - already compressed
