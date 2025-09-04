@@ -53,6 +53,10 @@ jobs:
       run: |
         set -v # echo commands
         
+        sudo apt-get update
+        sudo apt-get install -y \
+            octave-dev
+
         # bfp/bfp_GLPK/ccc expects glpk to be installed in dependencies/glpk
         mkdir -p $glpkdir
         curl -s -L https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-4.13.tar.gz | tar -xvz -C $glpkdir --strip-components=1
@@ -100,14 +104,72 @@ jobs:
         pushd $PACKAGE_FOLDER > /dev/null
         tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz *
 
+    - name: Build lp_solve_${{ env.LP_VERSION }}_FreeMat_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+
+        pushd extra/FreeMat > /dev/null
+        sh gen
+        popd
+
+        tar -czf \
+            $GITHUB_WORKSPACE/lp_solve_${LP_VERSION}_FreeMat_exe_${PLATFORM_FOLDER}.tar.gz \
+            --transform 's,extra/FreeMat/,,' \
+            --transform 's,extra/man/,,' \
+            --exclude=fmlpsolve.m \
+            extra/FreeMat/*.m \
+            extra/FreeMat/changes \
+            extra/FreeMat/fmlpsolve.so \
+            extra/FreeMat/README.txt \
+            extra/man/FreeMat.htm
+            
+    - name: Build lp_solve_${{ env.LP_VERSION }}_MATLAB_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      #if: false # C build fails with "cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory"
+      run: |
+        set -v # echo commands
+
+        pushd extra/MATLAB/lpsolve > /dev/null
+        make # cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory
+        popd
+
+        tar -czf \
+            $GITHUB_WORKSPACE/lp_solve_${LP_VERSION}_MATLAB_exe_${PLATFORM_FOLDER}.tar.gz \
+            --transform 's,extra/MATLAB/lpsolve/,,' \
+            --transform 's,extra/man/,,' \
+            --exclude=mxlpsolve.m \
+            --exclude=Makefile.m \
+            extra/MATLAB/lpsolve/*.m \
+            extra/MATLAB/lpsolve/mxlpsolve.mex* \
+            extra/MATLAB/lpsolve/changes \
+            extra/MATLAB/lpsolve/README.txt \
+            extra/man/MATLAB.htm 
+
+    - name: Build lp_solve_${{ env.LP_VERSION }}_octave_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+
+        pushd extra/octave/lpsolve > /dev/null
+        sh ccc
+        popd
+
+        tar -czf \
+            $GITHUB_WORKSPACE/lp_solve_${LP_VERSION}_octave_exe_${PLATFORM_FOLDER}.tar.gz \
+            --transform 's,extra/octave/lpsolve/,,' \
+            --transform 's,extra/man/,,' \
+            --exclude=octlpsolve.m \
+            extra/octave/lpsolve/*.m \
+            extra/octave/lpsolve/octlpsolve.oct \
+            extra/octave/lpsolve/changes \
+            extra/octave/lpsolve/README.txt \
+            extra/man/octave.htm
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.PLATFORM_FOLDER }}
         compression-level: 0 # no compression - already compressed
         path: |
-          lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
-          lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+          *.tar.gz
 
   build-ux32:
     if: false # temporarily disable while testing other build parts
@@ -126,7 +188,10 @@ jobs:
     - name: Install 32-bit toolchain
       run: |
         sudo apt-get update
-        sudo apt-get install -y gcc-i686-linux-gnu binutils-i686-linux-gnu
+        sudo apt-get install -y \
+            gcc-i686-linux-gnu \
+            binutils-i686-linux-gnu \
+            octave-dev
 
     - name: Checkout
       uses: actions/checkout@v5
@@ -183,14 +248,90 @@ jobs:
         pushd $PACKAGE_FOLDER > /dev/null
         tar -czvf $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz *
 
+    - name: Build lp_solve_${{ env.LP_VERSION }}_AMPL_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      if: false # C build fails with "fatal error: patchlevel.h: No such file or directory"
+      run: |
+        set -v # echo commands
+
+        pushd extra/AMPL/lpsolve > /dev/null
+        make makefile.u # Fails with fatal error: patchlevel.h: No such file or directory
+        popd
+
+        tar -czf \
+            $GITHUB_WORKSPACE/lp_solve_${{ env.LP_VERSION }}_AMPL_exe_${{ env.PLATFORM_FOLDER }}.tar.gz \
+            --transform 's,extra/AMPL/lpsolve/,,' \
+            --transform 's,extra/man/,,' \
+            extra/AMPL/lpsolve/lpsolve \
+            extra/AMPL/lpsolve/changes \
+            extra/AMPL/lpsolve/README \
+            extra/man/AMPL.htm
+
+    - name: Build lp_solve_${{ env.LP_VERSION }}_FreeMat_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+
+        pushd extra/FreeMat > /dev/null
+        sh gen
+        popd
+
+        tar -czf \
+            $GITHUB_WORKSPACE/lp_solve_${LP_VERSION}_FreeMat_exe_${PLATFORM_FOLDER}.tar.gz \
+            --transform 's,extra/FreeMat/,,' \
+            --transform 's,extra/man/,,' \
+            --exclude=fmlpsolve.m \
+            extra/FreeMat/*.m \
+            extra/FreeMat/changes \
+            extra/FreeMat/fmlpsolve.so \
+            extra/FreeMat/README.txt \
+            extra/man/FreeMat.htm
+            
+    - name: Build lp_solve_${{ env.LP_VERSION }}_MATLAB_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      #if: false # C build fails with "cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory"
+      run: |
+        set -v # echo commands
+
+        pushd extra/MATLAB/lpsolve > /dev/null
+        make # cc: fatal error: cannot execute ‘cc1obj’: posix_spawnp: No such file or directory
+        popd
+
+        tar -czf \
+            $GITHUB_WORKSPACE/lp_solve_${LP_VERSION}_MATLAB_exe_${PLATFORM_FOLDER}.tar.gz \
+            --transform 's,extra/MATLAB/lpsolve/,,' \
+            --transform 's,extra/man/,,' \
+            --exclude=mxlpsolve.m \
+            --exclude=Makefile.m \
+            extra/MATLAB/lpsolve/*.m \
+            extra/MATLAB/lpsolve/mxlpsolve.mex* \
+            extra/MATLAB/lpsolve/changes \
+            extra/MATLAB/lpsolve/README.txt \
+            extra/man/MATLAB.htm 
+
+    - name: Build lp_solve_${{ env.LP_VERSION }}_octave_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+      run: |
+        set -v # echo commands
+
+        pushd extra/octave/lpsolve > /dev/null
+        sh ccc
+        popd
+
+        tar -czf \
+            $GITHUB_WORKSPACE/lp_solve_${LP_VERSION}_octave_exe_${PLATFORM_FOLDER}.tar.gz \
+            --transform 's,extra/octave/lpsolve/,,' \
+            --transform 's,extra/man/,,' \
+            --exclude=octlpsolve.m \
+            extra/octave/lpsolve/*.m \
+            extra/octave/lpsolve/octlpsolve.oct \
+            extra/octave/lpsolve/changes \
+            extra/octave/lpsolve/README.txt \
+            extra/man/octave.htm
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: ${{ env.PLATFORM_FOLDER }}
         compression-level: 0 # no compression - already compressed
         path: |
-          lp_solve_${{ env.LP_VERSION }}_dev_${{ env.PLATFORM_FOLDER }}.tar.gz
-          lp_solve_${{ env.LP_VERSION }}_exe_${{ env.PLATFORM_FOLDER }}.tar.gz
+          *.tar.gz
 
   package-sources-and-extra-folder:
     needs: determine-version

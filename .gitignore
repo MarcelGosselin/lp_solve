@@ -372,3 +372,5 @@ distrib/
 
 # build artifacts
 lpsolve55/RCa*
+extra/octave/lpsolve/octlpsolve.oct
+extra/FreeMat/fmlpsolve.so

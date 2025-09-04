@@ -166,8 +166,11 @@ strArray GetCellCharItems(structlpsolvecaller *lpsolvecaller, int element, int l
         Cell pm;
         strArray pa;
         strArray pa0;
-
+#if OCTAVE_MAJOR_VERSION >= 5
+        if (!lpsolvecaller->prhs(element).iscell()) {
+#else
         if (!lpsolvecaller->prhs(element).is_cell()) {
+#endif
                 if (ShowError)
                         ErrMsgTxt(lpsolvecaller, "Expecting a cell argument.");
                 return(NULL);

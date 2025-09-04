@@ -25,11 +25,11 @@
 # For making lpsolve on Unix systems.
 
 .SUFFIXES: .c .o
-CC = cc
+CC ?= cc
 CFLAGS = -O
 S = ..
 # "S = .." assumes this directory is solvers/lpsolve .
-LPSOLVE = lp_solve_4.0
+LPSOLVE ?= lp_solve_4.0
 # from ftp://ftp.es.ele.tue.nl/pub/lp_solve/lp_solve.tar.gz
 
 # For other versions, it may suffice to change "3.0" to the appropriate
