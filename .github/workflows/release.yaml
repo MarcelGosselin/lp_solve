@@ -177,6 +177,7 @@ jobs:
     env:
       LP_VERSION: ${{ needs.determine-version.outputs.LP_VERSION }}
       PLATFORM_FOLDER: 'ux32'
+      PLATFORM: 'ux32'
       CC: "i686-linux-gnu-gcc -m32"
       # set glpkdir to where glpk is located, used in bfp/bfp_GLPK/ccc
       glpkdir: ${{ github.workspace }}/dependencies/glpk
