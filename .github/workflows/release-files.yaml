@@ -41,6 +41,7 @@ jobs:
     runs-on: windows-latest
 
     env:
+      LPSOLVE_WORKSPACE: ${{ github.workspace }}
       LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
       LPSOLVE_PLATFORM: 'win64'
 
@@ -55,29 +56,7 @@ jobs:
         arch: ${{ env.LPSOLVE_PLATFORM }}
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        echo "Building lpsolve55 library for platform $env:LPSOLVE_PLATFORM"
-        pushd $env:GITHUB_WORKSPACE/lpsolve55
-        ./cvc8NOmsvcrt.bat
-        popd
-
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          lp_Hash.h `
-          lp_lib.h `
-          lp_matrix.h `
-          lp_mipbb.h `
-          lp_SOS.h `
-          lp_types.h `
-          lp_utils.h
-
-        cd lpsolve55/bin/${{ env.LPSOLVE_PLATFORM }}
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          * `
-          '-x!lpsolve55.exp'
+      run: release_process/build-zip-dev_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       bfp_etaPFI.dll
@@ -91,17 +70,7 @@ jobs:
     #       xli_MPS.dll
     #       xli_XPRESS.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        echo "Building lp_solve.exe for platform $env:LPSOLVE_PLATFORM"
-        pushd $env:GITHUB_WORKSPACE/lp_solve
-        ./cvc8.bat
-        popd
-
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/lp_solve/bin/${{ env.LPSOLVE_PLATFORM }}
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath lp_solve.exe
+      run: release_process/build-zip-exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       bin/win64/lp_explicit.lib
@@ -109,46 +78,17 @@ jobs:
     # If we decide not to ship those anymore, should we include Makefile.m instead like MATLAB.htm describes?
     # Maybe also the *.h and *.c that might be needed to build these within MATLAB?
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_MATLAB_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_MATLAB_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/MATLAB/lpsolve
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            *.m `
-            changes `
-            README.txt `
-            '-x!Makefile.m'
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            MATLAB.htm
+      run: release_process/build-zip-MATLAB_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       bin/win64/sclpsolve.dll
     #       macros/lib
     # If we decide not to ship those anymore, should we include src/ folder?
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_scilab_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_scilab_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/scilab/lpsolve
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-            * `
-            '-x!src/'
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            Scilab.htm
+      run: release_process/build-zip-scilab_exe_winXX.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}.chm
-      run: |
-        cd $env:GITHUB_WORKSPACE/extra/man
-        ./gen.bat
-        cp *.chm $env:GITHUB_WORKSPACE
+      run: release_process/build-chm.ps1
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -165,6 +105,7 @@ jobs:
     runs-on: windows-latest
 
     env:
+      LPSOLVE_WORKSPACE: ${{ github.workspace }}
       LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
       LPSOLVE_PLATFORM: 'win32'
 
@@ -179,29 +120,7 @@ jobs:
         arch: ${{ env.LPSOLVE_PLATFORM }}
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        echo "Building lpsolve55 library for platform $env:LPSOLVE_PLATFORM"
-        pushd $env:GITHUB_WORKSPACE/lpsolve55
-        ./cvc8NOmsvcrt.bat
-        popd
-
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          lp_Hash.h `
-          lp_lib.h `
-          lp_matrix.h `
-          lp_mipbb.h `
-          lp_SOS.h `
-          lp_types.h `
-          lp_utils.h
-
-        cd lpsolve55/bin/${{ env.LPSOLVE_PLATFORM }}
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          * `
-          '-x!lpsolve55.exp'
+      run: release_process/build-zip-dev_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       bfp_etaPFI.dll
@@ -217,34 +136,12 @@ jobs:
     #       xli_XPRESS.dll
     #       xli_ZIMPL.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        echo "Building lp_solve.exe for platform $env:LPSOLVE_PLATFORM"
-        pushd $env:GITHUB_WORKSPACE/lp_solve
-        ./cvc8.bat
-        popd
-
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/lp_solve/bin/${{ env.LPSOLVE_PLATFORM }}
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath lp_solve.exe
+      run: release_process/build-zip-exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       lpsolve.exe (which seems to be built from extra/AMPL/solvers/lpsolve/makefile5*.vc)
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_AMPL_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_AMPL_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/AMPL/solvers/lpsolve
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            changes `
-            README
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            AMPL.htm
+      run: release_process/build-zip-AMPL_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       eulpsolve.dll(which seems to be built from extra/Euler/cvc.bat)
@@ -253,39 +150,12 @@ jobs:
     #       loadlpsolve70.en
     #       Test Problems.en
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_Euler_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_Euler_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/Euler
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            changes `
-            *.en `
-            *.e `
-            README.txt
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            Euler.htm
+      run: release_process/build-zip-Euler_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       fmlpsolve.dll(which seems to be built from extra/FreeMat/cvc.bat)
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_FreeMat_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_FreeMat_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/FreeMat
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            changes `
-            *.m `
-            README.txt
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            FreeMat.htm
+      run: release_process/build-zip-FreeMat_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       bin/win32/lp_explicit.lib
@@ -294,119 +164,40 @@ jobs:
     # If we decide not to ship those anymore, should we include Makefile.m instead like MATLAB.htm describes?
     # Maybe also the *.h and *.c that might be needed to build these within MATLAB?
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_MATLAB_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_MATLAB_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/MATLAB/lpsolve
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            *.m `
-            changes `
-            README.txt `
-            '-x!Makefile.m'
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            MATLAB.htm
+      run: release_process/build-zip-MATLAB_exe_winXX.ps1
 
     # TODO: This only contains an HTML file, do we still want to release this?
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_MSF_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_MSF_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            MSF.htm
+      run: release_process/build-zip-MSF_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       octlpsolve.oct
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_octave_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_octave_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/octave/lpsolve
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-            changes `
-            *.m `
-            README.txt
+      run: release_process/build-zip-octave_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       omlpsolve.dll (which seems built from cvc.bat)
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_OMATRIX_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_OMATRIX_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/O-MATRIX/lpsolve
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-            changes `
-            *.oms `
-            README.txt
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            O-Matrix.htm
+      run: release_process/build-zip-OMATRIX_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       php4/php_phplpsolve55.dll
     #       php5_2/php_phplpsolve55.dll
     #       php5_3/php_phplpsolve55.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_PHP_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_PHP_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/PHP
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-            changes `
-            *.php `
-            README.txt
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            PHP.htm
+      run: release_process/build-zip-PHP_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       bin/win32/sclpsolve.dll
     #       macros/lib
     # If we decide not to ship those anymore, should we include src/ folder?
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_scilab_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_scilab_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/scilab/lpsolve
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-            * `
-            '-x!src/'
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            Scilab.htm
+      run: release_process/build-zip-scilab_exe_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       sqlpsolveext.dll (seems to be built from cvc.bat)
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_Sysquake_exe_${{ env.LPSOLVE_PLATFORM }}.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_Sysquake_exe_${{ env.LPSOLVE_PLATFORM }}.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/Sysquake
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-            changes `
-            *.lml `
-            README.txt
-
-        cd $env:GITHUB_WORKSPACE/extra/man
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            Sysquake.htm
+      run: release_process/build-zip-Sysquake_exe_winXX.ps1
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -422,6 +213,7 @@ jobs:
     runs-on: windows-latest
 
     env:
+      LPSOLVE_WORKSPACE: ${{ github.workspace }}
       LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
 
     steps:
@@ -430,68 +222,24 @@ jobs:
       uses: actions/checkout@v5
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_access.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_access.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/Access
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          demo.mdb
+      run: release_process/build-zip-access.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       lpsolve55COM.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_COM.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_COM.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/COM
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-          * `
-          '-x!demo.vbg' `
-          '-x!lpsolve55ASP.cls'
+      run: release_process/build-zip-COM.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_cs.net.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_cs.net.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/cs.net
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          * `
-          '-x!app.config'
+      run: release_process/build-zip-cs.net.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_Delphi.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_Delphi.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/Delphi
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          cppc.bat `
-          demo.dpr `
-          lp.lp `
-          lpsolve.inc `
-          lpsolve.pas
+      run: release_process/build-zip-Delphi.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_excel.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_excel.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/excel
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          demo.xls
+      run: release_process/build-zip-excel.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_IDE_source.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_IDE_source.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/LPSolveIDE/IDE15
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          InnoSetup/L* `
-          *.*
+      run: release_process/build-zip-IDE_source.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       lib/mac/build-osx
@@ -507,62 +255,16 @@ jobs:
     #       lp_solve_5.5_java/src/java/Perf.java
     #       lp_solve_5.5_java/src/java/IsolatedTest.java
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_java.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_java.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra
-
-        # TODO, this could probably be done with .gitattributes
-        echo "Fixing newlines of Unix scripts"
-        $scriptFiles=@("lp_solve_5.5_java/demo/build", "lp_solve_5.5_java/demo/run_demo", "lp_solve_5.5_java/demo/run_unittests", "lp_solve_5.5_java/src/java/lpsolve/build")
-        foreach ($f in $scriptFiles) {
-          (Get-Content $f -Raw).Replace("`r`n","`n") | Set-Content $f -NoNewLine -Force
-        }
-
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-          lp_solve_5.5_java/demo `
-          lp_solve_5.5_java/demo2 `
-          lp_solve_5.5_java/docs `
-          lp_solve_5.5_java/src `
-          lp_solve_5.5_java/CHANGES.txt `
-          lp_solve_5.5_java/LGPL `
-          lp_solve_5.5_java/README.html `
-          '-x!lp_solve_5.5_java/demo/*.class' `
-          '-x!lp_solve_5.5_java/demo/*.log' `
-          '-x!lp_solve_5.5_java/demo/lpsolve' `
-          '-x!lp_solve_5.5_java/src/java/*.class' `
-          '-x!model.lp'
+      run: release_process/build-zip-java.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_MSF_source.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_MSF_source.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/MSF
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 -r $zipPath `
-          *
+      run: release_process/build-zip-MSF_source.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_vb.net.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_vb.net.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/VB.NET
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-          * `
-          '-x!app.config'
+      run: release_process/build-zip-vb.net.ps1
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_vb.zip
-      run: |
-        $zipPath = "$env:GITHUB_WORKSPACE/lp_solve_${{ env.LPSOLVE_VERSION }}_vb.zip"
-
-        cd $env:GITHUB_WORKSPACE/extra/vb
-        echo "Packaging files from $PWD"
-        7z a -tzip -bso0 -bsp0 $zipPath `
-            Module1.bas `
-            lpsolve55.cls `
-            demo.vbp
+      run: release_process/build-zip-vb.ps1
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
@@ -579,6 +281,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
+      LPSOLVE_WORKSPACE: ${{ github.workspace }}
       LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
       # TODO: decide what we want as root folder inside the *_source.tar.gz:
       #       - lp_solve_5.5  like versions up to 5.5.2.11
@@ -613,136 +316,39 @@ jobs:
     # Ensure this is done *before* adding any file in the workspace (like generated .tar.gz)
     # otherwise they will end up in lp_solve_${{ env.LPSOLVE_VERSION }}_source.tar.gz file
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_source.tar.gz
-      run: |
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_source.tar.gz \
-            --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-            --exclude-vcs \
-            --exclude-vcs-ignores \
-            --exclude=output \
-            --exclude=xli \
-            --exclude=extra \
-            --exclude=.github \
-            --exclude=bfp/bfp_etaPFI \
-            --exclude=bfp/bfp_GLPK \
-            *
+      run: ./release_process/build-targz-source.sh
 
-    - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_bfp_*source.tar.gz
-      run: |
-        for i in etaPFI GLPK LUSOL
-        do
-          echo "Packaging lp_solve_${LPSOLVE_VERSION}_bfp_${i}_source.tar.gz"
-          tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_bfp_${i}_source.tar.gz \
-              --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-              --exclude-vcs-ignores \
-              bfp/bfp_${i} \
-              bfp/*.*
-        done
+    - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_bfp_*_source.tar.gz
+      run: ./release_process/build-targz-bfp_XX_source.sh
 
-    - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_xli_*source.tar.gz
-      run: |
-        for i in CPLEX LINDO LPFML MathProg MPS XPRESS
-        do
-          echo "Packaging lp_solve_${LPSOLVE_VERSION}_xli_${i}_source.tar.gz"
-          tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_xli_${i}_source.tar.gz \
-              --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-              --exclude-vcs-ignores \
-              xli/xli_${i} \
-              xli/*.*
-        done
-
-        # xli_DIMACS
-        echo "Packaging lp_solve_${LPSOLVE_VERSION}_xli_DIMACS_source.tar.gz"
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_xli_DIMACS_source.tar.gz \
-            --transform "s,^extra/man,xli/xli_DIMACS," \
-            --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-            --exclude-vcs-ignores \
-            xli/xli_DIMACS \
-            xli/*.* \
-            extra/man/DIMACS_*.htm \
-            extra/man/dimacs_*.gif
+    - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_xli_*_source.tar.gz
+      run: ./release_process/build-targz-xli_XX_source.sh
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_AMPL_source.tar.gz
-      run: |
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_AMPL_source.tar.gz \
-            --transform "s,^extra/man,extra/AMPL/solvers/lpsolve," \
-            --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-            --exclude-vcs-ignores \
-            extra/AMPL/solvers \
-            extra/man/AMPL.htm
+      run: ./release_process/build-targz-AMPL_source.sh
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_{Euler,FreeMat,PHP,Python,Sysquake}_source.tar.gz
-      run: |
-        for i in Euler FreeMat PHP Python Sysquake
-        do
-          echo "Packaging lp_solve_${LPSOLVE_VERSION}_${i}_source.tar.gz"
-          tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_${i}_source.tar.gz \
-              --transform "s,^extra/man,extra/${i}," \
-              --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-              --exclude-vcs-ignores \
-              extra/${i} \
-              extra/man/${i}.htm
-        done
+      run: ./release_process/build-targz-manyextras_source.sh
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
     #       extra/MATLAB/lpsolve/bin/win{32,64}/lp_explicit.lib
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_MATLAB_source.tar.gz
-      run: |
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_MATLAB_source.tar.gz \
-            --transform "s,^extra/man,extra/MATLAB/lpsolve," \
-            --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-            --exclude-vcs-ignores \
-            extra/MATLAB \
-            extra/man/MATLAB.htm
+      run: ./release_process/build-targz-MATLAB_source.sh
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_octave_source.tar.gz
-      run: |
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_octave_source.tar.gz \
-            --transform "s,^extra/man/octave.htm,extra/octave/lpsolve/Octave.htm," \
-            --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-            --exclude-vcs-ignores \
-            extra/octave \
-            extra/man/octave.htm
+      run: ./release_process/build-targz-octave_source.sh
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_OMATRIX_source.tar.gz
-      run: |
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_OMATRIX_source.tar.gz \
-            --transform "s,^extra/man,extra/O-MATRIX/lpsolve," \
-            --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-            --exclude-vcs-ignores \
-            extra/O-MATRIX \
-            extra/man/O-Matrix.htm
+      run: ./release_process/build-targz-OMATRIX_source.sh
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_scilab_source.tar.gz
-      run: |
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_scilab_source.tar.gz \
-            --transform "s,^extra/man/Scilab.htm,extra/scilab/lpsolve/man/scilab.htm," \
-            --transform "s,^,${LPSOLVE_SOURCE_ROOT_FOLDER}/," \
-            --exclude-vcs-ignores \
-            extra/scilab \
-            extra/man/Scilab.htm
+      run: ./release_process/build-targz-scilab_source.sh
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_c.tar.gz
-      run: |
-        cd extra/c
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_c.tar.gz \
-            --exclude-vcs-ignores \
-            --exclude=lp.lp \
-            *
+      run: ./release_process/build-targz-c.sh
 
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_doc.tar.gz
-      run: |
-        cd extra/man
-        tar -czf ${GITHUB_WORKSPACE}/lp_solve_${LPSOLVE_VERSION}_doc.tar.gz \
-            --exclude-vcs-ignores \
-            --exclude=arv \
-            --exclude=Win32 \
-            --exclude=*.bat \
-            --exclude=BuildLog.htm \
-            --exclude=HTMLHelp.* \
-            --exclude=lp_solve.hh* \
-            --exclude=man.* \
-            --exclude=man0.* \
-            *
+      run: ./release_process/build-targz-doc.sh
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
