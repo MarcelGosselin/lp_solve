@@ -59,16 +59,8 @@ jobs:
       run: release_process/build-zip-dev_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
-    #       bfp_etaPFI.dll
     #       bfp_GLPK.dll
-    #       bfp_LUSOL.dll
-    #       contents.txt
-    #       xli_CPLEX.dll
-    #       xli_DIMACS.dll
-    #       xli_LINDO.dll
     #       xli_MathProg.dll
-    #       xli_MPS.dll
-    #       xli_XPRESS.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip
       run: release_process/build-zip-exe_winXX.ps1
 
@@ -123,17 +115,9 @@ jobs:
       run: release_process/build-zip-dev_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
-    #       bfp_etaPFI.dll
     #       bfp_GLPK.dll
-    #       bfp_LUSOL.dll
-    #       contents.txt
-    #       xli_CPLEX.dll
-    #       xli_DIMACS.dll
-    #       xli_LINDO.dll
     #       xli_LPFML.dll
     #       xli_MathProg.dll
-    #       xli_MPS.dll
-    #       xli_XPRESS.dll
     #       xli_ZIMPL.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip
       run: release_process/build-zip-exe_winXX.ps1
