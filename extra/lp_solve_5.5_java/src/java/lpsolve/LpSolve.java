@@ -272,7 +272,12 @@ public class LpSolve {
 	 * Static initializer to load the stub library
 	 */
 	static {
-		System.loadLibrary("lpsolve55j");
+		String lpsolvePath = System.getProperty("lpsolve55j.lib.path");
+		if (lpsolvePath != null) {
+			System.load(lpsolvePath);
+		} else {
+			System.loadLibrary("lpsolve55j");
+		}
 		init();
 	}
 
