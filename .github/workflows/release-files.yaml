@@ -219,6 +219,33 @@ jobs:
       LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
       LPSOLVE_PLATFORM: ${{ matrix.platform }}
 
+    ##### Start section - older glibc support #####
+    # To build binaries with dependencies on older libc versions,
+    # we use a gcc on an earlier distro through a container.
+    # If we want to drop that support, we can remove the defaults.run.shell and container elements below.
+    defaults:
+      run:
+        shell: bash # overriden because default in container jobs is sh
+    container:
+      image: gcc:10.4-buster        # uses symbols from glibc 2.2.5-2.14 in built liblpsolve55.so and others
+      # image: gcc:12.3-bullseye    # uses symbols from glibc 2.2.5-2.29 in built liblpsolve55.so
+      # image: gcc:15.2-bookworm    # uses symbols from glibc ... not tested yet
+      # no container, ubuntu-22.04  # uses symbols from glibc 2.2.5-2.34 in built liblpsolve55.so
+      # no container, ubuntu-24.04  # uses symbols from glibc 2.2.5-2.38 in built liblpsolve55.so
+      # to check versions of glibc used by built liblpsolve55.so:
+      #   readelf --dyn-syms -W /path/to/liblpsolve55.so | grep @GLIBC_ | sed -E 's/^.*@GLIBC_([^ ]+) .*$/\1/' | sort | uniq
+      env:
+        # different path in container, mapped to host workspace in volume and options below
+        LPSOLVE_WORKSPACE: /githubworkspace
+        LPSOLVE_VERSION: ${{ env.LPSOLVE_VERSION }}
+        LPSOLVE_PLATFORM: ${{ env.LPSOLVE_PLATFORM }}
+      volumes:
+        # ${{ env. }} is not available in this section, using ${{ github.workspace }} instead
+        - ${{ github.workspace }}:/githubworkspace
+      # set working directory to workspace
+      options: -w /githubworkspace
+    ##### End section - older glibc support #####
+
     steps:
 
     - name: Install 32-bit toolchain
