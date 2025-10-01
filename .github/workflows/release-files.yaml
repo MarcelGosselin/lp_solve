@@ -208,6 +208,65 @@ jobs:
         path: |
           *.zip
 
+  build-linux:
+    needs: determine-version
+    strategy:
+      matrix:
+        platform: ["ux32", "ux64"]
+    runs-on: ubuntu-latest
+    env:
+      LPSOLVE_WORKSPACE: ${{ github.workspace }}
+      LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
+      LPSOLVE_PLATFORM: ${{ matrix.platform }}
+
+    steps:
+
+    - name: Install 32-bit toolchain
+      if: matrix.platform == 'ux32'
+      run: |
+        LPSOLVE_OS_CODENAME=$(cat /etc/os-release|grep VERSION_CODENAME|sed -E 's/VERSION_CODENAME=//')
+        if [ "$LPSOLVE_OS_CODENAME" = "buster" ] || [ "$LPSOLVE_OS_CODENAME" = "bullseye" ] ; then
+          echo "Detected debian $LPSOLVE_OS_CODENAME - changing apt sources to archive.debian.org"
+          # old debian release, sources have been moved to archive.debian.org
+          sed -i s/deb.debian.org/archive.debian.org/g /etc/apt/sources.list
+        fi
+
+        apt-get update
+        apt-get install -y gcc-i686-linux-gnu binutils-i686-linux-gnu
+
+        # ensure to use the 32 bit compiler in subsequent steps
+        echo 'CC=i686-linux-gnu-gcc -m32' >> "$GITHUB_ENV"
+
+    - name: Checkout
+      uses: actions/checkout@v5
+
+    - name: Install missing dependencies
+      run: |
+        set -v # echo commands
+        
+        # set glpkdir to where glpk is located, used in bfp/bfp_GLPK/ccc
+        # also set it for future steps
+        glpkdir=${LPSOLVE_WORKSPACE}/dependencies/glpk
+        echo "glpkdir=${glpkdir}" >> "$GITHUB_ENV"
+
+        mkdir -p $glpkdir
+        curl -s -L https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-4.13.tar.gz | tar -xvz -C $glpkdir --strip-components=1
+
+    - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.tar.gz
+      run: ./release_process/build-targz-dev_uxXX.sh
+      
+    - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.tar.gz
+      run: ./release_process/build-targz-exe_uxXX.sh
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: ${{ env.LPSOLVE_PLATFORM }}
+        compression-level: 0 # no compression - already compressed
+        retention-days: 1
+        path: |
+          *.tar.gz
+
   zip-on-windows:
     needs: determine-version
     runs-on: windows-latest
@@ -364,6 +423,7 @@ jobs:
     needs:
       - build-win64
       - build-win32
+      - build-linux
       - zip-on-windows
       - tar-gz-on-linux
     steps:
