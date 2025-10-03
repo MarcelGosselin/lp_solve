@@ -1,5 +1,7 @@
 . $PSScriptRoot/check_env_vars.ps1
-$requiredEnvVars = @("LPSOLVE_WORKSPACE", "LPSOLVE_VERSION", "LPSOLVE_PLATFORM")
+$requiredEnvVars = @("LPSOLVE_WORKSPACE", "LPSOLVE_VERSION", "LPSOLVE_PLATFORM", "LPSOLVE_GLPK_DIR_4_13", "LPSOLVE_GLPK_DIR_4_44")
+# Needed by xli_MathProg's cvc8NOmsvcrt.bat
+# $requiredEnvVars += "LPSOLVE_MYSQL_CONNECTOR_C_DIR"
 Assert-EnvironmentVariablesAreNotEmpty $requiredEnvVars
 
 $zipContentFolder = Join-Path ${env:Temp} "exe_${env:LPSOLVE_VERSION}_zip_content"
@@ -13,10 +15,9 @@ cd ${env:LPSOLVE_WORKSPACE}/lp_solve
 ./cvc8.bat
 cp ${env:LPSOLVE_WORKSPACE}/lp_solve/bin/${env:LPSOLVE_PLATFORM}/lp_solve.exe $zipContentFolder
 
-# TODO: we currently have version conflicts on the GLPK library used by bfp_GLPK and xli_MathProg
-#       in version 5.5.2.0 of lp_solve, it upgraded from GLPK 4.13 to 4.44 for xli_MathProg but not for "bfp_GLPK"
-#       For this reason we won't built "bfp_GLPK" nor "xli_MathProg" right now
-$bfpFolders = "bfp_etaPFI", "bfp_LUSOL" # "bfp_GLPK"
+# TODO: we currently have version conflicts on the GLPK library used by bfp_GLPK (4.13) and xli_MathProg (4.44)
+${env:glpkdir} = ${env:LPSOLVE_GLPK_DIR_4_13}
+$bfpFolders = "bfp_etaPFI", "bfp_LUSOL", "bfp_GLPK"
 foreach ($bfpFolder in $bfpFolders) {
     echo "Building $bfpFolder.dll for platform $env:LPSOLVE_PLATFORM"
     cd ${env:LPSOLVE_WORKSPACE}/bfp/$bfpFolder
@@ -24,8 +25,8 @@ foreach ($bfpFolder in $bfpFolders) {
     cp ${env:LPSOLVE_WORKSPACE}/bfp/$bfpFolder/bin/${env:LPSOLVE_PLATFORM}/$bfpFolder.dll $zipContentFolder
 }
 
-# TODO: see comment about GLPK and xli_MathProg above
-$xliFolders = "xli_CPLEX", "xli_DIMACS", "xli_LINDO", "xli_MPS", "xli_XPRESS" # "xli_MathProg"
+${env:glpkdir} = ${env:LPSOLVE_GLPK_DIR_4_44}
+$xliFolders = "xli_CPLEX", "xli_DIMACS", "xli_LINDO", "xli_MPS", "xli_XPRESS", "xli_MathProg"
 if ( $env:LPSOLVE_PLATFORM -eq "win32" ) {
     # issues building them for now
     # $xliFolders += "xli_LPFML", "xli_ZIMPL"
