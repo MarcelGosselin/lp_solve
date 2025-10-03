@@ -44,6 +44,11 @@ jobs:
       LPSOLVE_WORKSPACE: ${{ github.workspace }}
       LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
       LPSOLVE_PLATFORM: 'win64'
+      LPSOLVE_GLPK_DIR_4_13: ${{ github.workspace }}\dependencies\glpk4.13
+      LPSOLVE_GLPK_DIR_4_44: ${{ github.workspace }}\dependencies\glpk4.44
+      # Needed by xli_MathProg, but we disable MySQL support for now because of build errors
+      #LPSOLVE_MYSQL_CONNECTOR_C_DIR: ${{ github.workspace }}\dependencies\mysql-connector-c
+      LPSOLVE_XLI_MATHPROG_EXTRABUILDFLAGS: -DNOMYSQL
 
     steps:
 
@@ -55,12 +60,26 @@ jobs:
       with:
         arch: ${{ env.LPSOLVE_PLATFORM }}
 
+    - name: Install missing dependencies
+      run: |
+        # Currently GLPK is used by bfp_GLPK and xli_MathProg but with different versions
+        # bfp_GLPK needs glpk 4.13
+        # xli_MathProg needs glpk 4.44
+
+        . ${env:LPSOLVE_WORKSPACE}/release_process/check_env_vars.ps1
+        $requiredEnvVars = @("LPSOLVE_WORKSPACE", "LPSOLVE_GLPK_DIR_4_13", "LPSOLVE_GLPK_DIR_4_44")
+        Assert-EnvironmentVariablesAreNotEmpty $requiredEnvVars
+
+        . ${env:LPSOLVE_WORKSPACE}/release_process/download_dependencies.ps1
+        Download-GLPK -Version "4.13" -Destination ${env:LPSOLVE_GLPK_DIR_4_13}
+        Download-GLPK -Version "4.44" -Destination ${env:LPSOLVE_GLPK_DIR_4_44}
+
+        # Needed by xli_MathProg, but we disable MySQL support for now because of build errors
+        # Download-MySQLConnectorC -Version "6.0.2" -Destination ${env:LPSOLVE_MYSQL_CONNECTOR_C_DIR} -Is32Bit $true
+
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.zip
       run: release_process/build-zip-dev_winXX.ps1
 
-    # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
-    #       bfp_GLPK.dll
-    #       xli_MathProg.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip
       run: release_process/build-zip-exe_winXX.ps1
 
@@ -100,6 +119,10 @@ jobs:
       LPSOLVE_WORKSPACE: ${{ github.workspace }}
       LPSOLVE_VERSION: ${{ needs.determine-version.outputs.LPSOLVE_VERSION }}
       LPSOLVE_PLATFORM: 'win32'
+      LPSOLVE_GLPK_DIR_4_13: ${{ github.workspace }}\dependencies\glpk4.13
+      LPSOLVE_GLPK_DIR_4_44: ${{ github.workspace }}\dependencies\glpk4.44
+      #LPSOLVE_MYSQL_CONNECTOR_C_DIR: ${{ github.workspace }}\dependencies\mysql-connector-c
+      LPSOLVE_XLI_MATHPROG_EXTRABUILDFLAGS: -DNOMYSQL
 
     steps:
 
@@ -111,13 +134,28 @@ jobs:
       with:
         arch: ${{ env.LPSOLVE_PLATFORM }}
 
+    - name: Install missing dependencies
+      run: |
+        # Currently GLPK is used by bfp_GLPK and xli_MathProg but with different versions
+        # bfp_GLPK needs glpk 4.13
+        # xli_MathProg needs glpk 4.44
+
+        . ${env:LPSOLVE_WORKSPACE}/release_process/check_env_vars.ps1
+        $requiredEnvVars = @("LPSOLVE_WORKSPACE", "LPSOLVE_GLPK_DIR_4_13", "LPSOLVE_GLPK_DIR_4_44")
+        Assert-EnvironmentVariablesAreNotEmpty $requiredEnvVars
+
+        . ${env:LPSOLVE_WORKSPACE}/release_process/download_dependencies.ps1
+        Download-GLPK -Version "4.13" -Destination ${env:LPSOLVE_GLPK_DIR_4_13}
+        Download-GLPK -Version "4.44" -Destination ${env:LPSOLVE_GLPK_DIR_4_44}
+
+        # Needed by xli_MathProg, but we disable MySQL support for now because of build errors
+        # Download-MySQLConnectorC -Version "6.0.2" -Destination ${env:LPSOLVE_MYSQL_CONNECTOR_C_DIR} -Is32Bit $true
+
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.zip
       run: release_process/build-zip-dev_winXX.ps1
 
     # TODO: zip here reproduces what was released with 5.5.2.14 which is missing files compared to 5.5.2.11:
-    #       bfp_GLPK.dll
     #       xli_LPFML.dll
-    #       xli_MathProg.dll
     #       xli_ZIMPL.dll
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.zip
       run: release_process/build-zip-exe_winXX.ps1
