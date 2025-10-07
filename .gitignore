@@ -372,3 +372,4 @@ distrib/
 
 # build artifacts
 lpsolve55/RCa*
+output/
