@@ -4,9 +4,16 @@ Assert-EnvironmentVariablesAreNotEmpty $requiredEnvVars
 
 $zipPath = "${env:LPSOLVE_WORKSPACE}/lp_solve_${env:LPSOLVE_VERSION}_AMPL_exe_${env:LPSOLVE_PLATFORM}.zip"
 
+cd ${env:LPSOLVE_WORKSPACE}/extra/AMPL/solvers
+echo "char sysdetails_ASL[] = `"MS VC ${env:VCToolsVersion}`";" > ${env:LPSOLVE_WORKSPACE}/extra/AMPL/solvers/details.c
+nmake -f makefile.vc
+cd ${env:LPSOLVE_WORKSPACE}/extra/AMPL/solvers/lpsolve
+nmake -f makefile5dyn.vc
+
 cd ${env:LPSOLVE_WORKSPACE}/extra/AMPL/solvers/lpsolve
 echo "Packaging files from ${PWD} into ${zipPath}"
 7z a -tzip -bso0 -bsp0 $zipPath `
+    lpsolve.exe `
     changes `
     README
 

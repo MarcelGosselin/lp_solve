@@ -47,3 +47,24 @@ function Download-MySQLConnectorC {
     # Cleanup
     rm $tempFolder -Recurse
 }
+
+function Download-AMPL {
+    param (
+        [string]$Destination
+    )
+
+    $tempFolder = [System.IO.Path]::GetTempFileName()
+    Remove-Item $tempFolder
+    New-Item -ItemType Directory -Path $tempFolder
+    $tarGzPath    = Join-Path $tempFolder "solvers.tgz"
+    $tarPath      = Join-Path $tempFolder "solvers.tar"
+    $untarredPath = Join-Path $tempFolder "solvers"
+
+    Invoke-WebRequest -Uri https://www.netlib.org/ampl/solvers.tgz -OutFile $tarGzPath
+    7z x $tarGzPath -o"$tempFolder" # creates file at $tarPath
+    7z x -aoa -ttar -spe $tarPath -o"$untarredPath"
+    Move-Item -Path $untarredPath\* -Destination $Destination
+
+    # Cleanup
+    rm $tempFolder -Recurse
+}

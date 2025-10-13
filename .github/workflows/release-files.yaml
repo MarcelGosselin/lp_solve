@@ -151,6 +151,8 @@ jobs:
         # Needed by xli_MathProg, but we disable MySQL support for now because of build errors
         # Download-MySQLConnectorC -Version "6.0.2" -Destination ${env:LPSOLVE_MYSQL_CONNECTOR_C_DIR} -Is32Bit $true
 
+        Download-AMPL -Destination ${env:LPSOLVE_WORKSPACE}/extra/AMPL/solvers
+
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.zip
       run: release_process/build-zip-dev_winXX.ps1
 

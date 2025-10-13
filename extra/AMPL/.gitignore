@@ -1,0 +1,7 @@
+# Ignore all files in the solvers directory because this is where we extracted the AMPL distribution.
+# However, we want to keep the lpsolve subdirectory because it contains source code that we maintain.
+solvers/*
+!solvers/lpsolve/
+
+# generated files from lpsolve
+lpsolve.exp
