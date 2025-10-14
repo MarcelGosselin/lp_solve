@@ -303,11 +303,17 @@ jobs:
         mkdir -p $glpkdir
         curl -s -L https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-4.13.tar.gz | tar -xvz -C $glpkdir --strip-components=1
 
+        curl -s -L https://www.netlib.org/ampl/solvers.tgz | tar -xvz -C ${LPSOLVE_WORKSPACE}/extra/AMPL
+
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_dev_${{ env.LPSOLVE_PLATFORM }}.tar.gz
       run: ./release_process/build-targz-dev_uxXX.sh
       
     - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_exe_${{ env.LPSOLVE_PLATFORM }}.tar.gz
       run: ./release_process/build-targz-exe_uxXX.sh
+
+    - name: Build lp_solve_${{ env.LPSOLVE_VERSION }}_AMPL_exe_${{ env.LPSOLVE_PLATFORM }}.tar.gz
+      if: ${{ env.LPSOLVE_PLATFORM == 'ux32' }} 
+      run: ./release_process/build-targz-AMPL_exe_uxXX.sh
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
