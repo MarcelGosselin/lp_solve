@@ -53,13 +53,13 @@ struct _functions {
     fn_REAL_set_function *REAL_set_function;       /* set via setREALfunction */
   } set_function;
   int type;                                     /* set via set*function */
-  struct _values *values;                       /* set via setvalues to a structure of _values */
+  const struct _values *values;                 /* set via setvalues to a structure of _values */
   int elements;                                 /*  or via setNULLvalues if the value is shown as is */
   unsigned int basemask;
   int mask;                                     /* WRITE_ACTIVE or WRITE_COMMENTED */
 };
 
-static struct _values anti_degen[] =
+static const struct _values anti_degen[] =
 {
   { setvalue(ANTIDEGEN_NONE) },
   { setvalue(ANTIDEGEN_FIXEDVARS) },
@@ -74,7 +74,7 @@ static struct _values anti_degen[] =
   { setvalue(ANTIDEGEN_BOUNDFLIP) },
 };
 
-static struct _values basiscrash[] =
+static const struct _values basiscrash[] =
 {
   { setvalue(CRASH_NONE) },
   /* { setvalue(CRASH_NONBASICBOUNDS) }, */ /* not yet implemented */
@@ -82,14 +82,14 @@ static struct _values basiscrash[] =
   { setvalue(CRASH_LEASTDEGENERATE) },
 };
 
-static struct _values bb_floorfirst[] =
+static const struct _values bb_floorfirst[] =
 {
   { setvalue(BRANCH_CEILING) },
   { setvalue(BRANCH_FLOOR) },
   { setvalue(BRANCH_AUTOMATIC) },
 };
 
-static struct _values bb_rule[] =
+static const struct _values bb_rule[] =
 {
   { setvalue(NODE_FIRSTSELECT) },
   { setvalue(NODE_GAPSELECT) },
@@ -114,7 +114,7 @@ static struct _values bb_rule[] =
   { setvalue(NODE_STRONGINIT) },
 };
 
-static struct _values improve[] =
+static const struct _values improve[] =
 {
   { setvalue(IMPROVE_NONE) },
   { setvalue(IMPROVE_SOLUTION) },
@@ -143,7 +143,7 @@ static void __WINAPI set_mip_gap_rel(lprec *lp, REAL mip_gap)
   set_mip_gap(lp, FALSE, mip_gap);
 }
 
-static struct _values pivoting[] =
+static const struct _values pivoting[] =
 {
   { setvalue(PRICER_FIRSTINDEX) },
   { setvalue(PRICER_DANTZIG) },
@@ -161,7 +161,7 @@ static struct _values pivoting[] =
   { setvalue(PRICE_TRUENORMINIT) },
 };
 
-static struct _values presolving[] =
+static const struct _values presolving[] =
 {
   { setvalue(PRESOLVE_NONE) },
   { setvalue(PRESOLVE_ROWS) },
@@ -217,7 +217,7 @@ static void __WINAPI set_presolve2(lprec *lp, int maxloops)
   set_presolve(lp, get_presolve(lp), maxloops);
 }
 
-static struct _values print_sol[] =
+static const struct _values print_sol[] =
 {
   { FALSE, "0" },
   { TRUE,  "1" },
@@ -225,7 +225,7 @@ static struct _values print_sol[] =
   { setvalue(PRECISION) },
 };
 
-static struct _values scaling[] =
+static const struct _values scaling[] =
 {
   { setvalue(SCALE_NONE) },
   { setvalue(SCALE_EXTREME) },
@@ -244,7 +244,7 @@ static struct _values scaling[] =
   { setvalue(SCALE_COLSONLY) },
 };
 
-static struct _values simplextype[] =
+static const struct _values simplextype[] =
 {
   { setvalue(SIMPLEX_PRIMAL_PRIMAL) },
   { setvalue(SIMPLEX_DUAL_PRIMAL) },
@@ -252,7 +252,7 @@ static struct _values simplextype[] =
   { setvalue(SIMPLEX_DUAL_DUAL) },
 };
 
-static struct _values verbose[] =
+static const struct _values verbose[] =
 {
   { setvalue(NEUTRAL) },
   { setvalue(CRITICAL) },
@@ -263,7 +263,7 @@ static struct _values verbose[] =
   { setvalue(FULL) },
 };
 
-static struct _functions functions[] =
+static const struct _functions functions[] =
 {
   /* solve options */
   { "ANTI_DEGEN", setintfunction(get_anti_degen, set_anti_degen), setvalues(anti_degen, ~0), WRITE_ACTIVE },

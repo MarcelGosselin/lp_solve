@@ -369,3 +369,7 @@ extra/man/.gitignore
 distriball.bat
 **/distribsrc.txt
 distrib/
+
+# build artifacts
+lpsolve55/RCa*
+output/
