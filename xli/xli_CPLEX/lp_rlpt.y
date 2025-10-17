@@ -13,13 +13,19 @@
    Version 1.35 is not enough. v1.875 could be ok. Tested with v2.3
 */
 
-%pure-parser
+/* %pure-parser */
+%define api.pure full
 %parse-param {parse_parm *parm}
 %parse-param {void *scanner}
 %lex-param {yyscan_t *scanner}
 
 %token VAR CONS INTCONS VARIABLECOLON INF FRE SEC_INT SEC_SEC SEC_SOS SOSTYPE TOK_SIGN RE_OPEQ RE_OPLE RE_OPGE MINIMISE MAXIMISE SUBJECTTO BOUNDS END UNDEFINED
 
+%code {
+#include "lp_rlpt.inc"
+
+#undef yylval
+}
 
 %{
 #include <stdlib.h>
@@ -77,14 +83,7 @@ static int isatty(int f)
 #ifdef __cplusplus
 };
 #endif
-
-#include "lp_rlpt.inc"
-
-#undef yylval
-
 %}
-
-
 
 %start inputfile
 %%
@@ -616,6 +615,10 @@ int_sec_sos_declarations: x_int_declarations
                           x_sos_declarations
                 ;
 
+opt_VARIABLES:    EMPTY
+                | VARIABLES
+                ;
+
 VARIABLES:        ONEVARIABLE
                 | VARIABLES
                   ONEVARIABLE
@@ -679,7 +682,7 @@ int_declaration: SEC_INT
 
   check_int_sec_sos_free_decl(pp, pv->Within_gen_decl ? 1 : pv->Within_bin_decl ? 2 : 0, 0, 0, 0);
 }
-                 VARIABLES
+                 opt_VARIABLES
                 ;
 
 x_sec_declarations:
@@ -699,7 +702,7 @@ sec_declaration: SEC_SEC
 
   check_int_sec_sos_free_decl(pp, 0, 1, 0, 0);
 }
-                 VARIABLES
+                 opt_VARIABLES
                 ;
 
 

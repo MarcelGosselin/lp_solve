@@ -61,9 +61,6 @@ SOSD {LBL}:
 <COMMENT>\n {
 }
 
-<COMMENT>\r {
-}
-
 <INITIAL>"//" {
   BEGIN LINECOMMENT;
 } /* begin skip LINECOMMENT */

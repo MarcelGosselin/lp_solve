@@ -13,13 +13,19 @@
    Version 1.35 is not enough. v1.875 could be ok. Tested with v2.3
 */
 
-%pure-parser
+/* %pure-parser */
+%define api.pure full
 %parse-param {parse_parm *parm}
 %parse-param {void *scanner}
 %lex-param {yyscan_t *scanner}
 
 %token VAR CONS INTCONS VARIABLECOLON INF SEC_INT SEC_BIN SEC_SEC SEC_SOS SOSDESCR SEC_FREE TOK_SIGN AR_M_OP RE_OPEQ RE_OPLE RE_OPGE END_C COMMA COLON MINIMISE MAXIMISE UNDEFINED
 
+%code {
+#include "lp_rlp.h"
+
+#undef yylval
+}
 
 %{
 #include <stdlib.h>
@@ -103,10 +109,6 @@ static int __WINAPI lp_input(void *vpp, char *buf, int max_size)
 #ifdef __cplusplus
 };
 #endif
-
-#include "lp_rlp.h"
-
-#undef yylval
 
 %}
 
