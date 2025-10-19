@@ -363,6 +363,7 @@ a
 **/*.sq
 **/*.zip
 extra/man/.gitignore
+dependencies/
 
 # Distribution files
 **/distrib.bat
