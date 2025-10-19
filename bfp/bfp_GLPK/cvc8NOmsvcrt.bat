@@ -5,7 +5,9 @@ rem glpk is needed to compile this library. See at ftp://prep.ai.mit.edu/pub/gnu
 rem Tested with glpk 4.2, 4.7, 4.8, 4.11, 4.13
 
 rem Location where glpk is located.
-set glpkdir=\glpk
+if "%glpkdir%" == "" (
+    set glpkdir=\glpk
+)
 
 set glpk1=%glpkdir%\src\glplib1a.c
 set glpk2=%glpkdir%\src\glplib2.c
