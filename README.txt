@@ -561,6 +561,10 @@ xx/xx/xx version 5.5.2.8
 - In some rare cases a variable value can be returned as a very small negative number instead of 0
 - Delphi/lpsolve.pas: Add Solver status value "ACCURACYERROR = 25;" + get_accuracy, get_break_numeric_accuracy, set_break_numeric_accuracy
 
+xx/xx/xx version 5.5.2.15
+- java interface: load lpsolve jni lib from LP_SOLVE_JNI_LIB_PATH environment variable.
+- The cplex parser (xli_CPLEX) gave an error if it encountered an empty bin, gen or semi section
+
 We are thrilled to hear from you and your experiences with this new version. The good and the bad.
 Also we would be pleased to hear about your experiences with the different BFPs on your models.
 
