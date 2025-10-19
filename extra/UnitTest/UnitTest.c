@@ -20357,6 +20357,8 @@ void UnitTest46()
 	}
 }
 
+extern void UnitTest47();
+
 int main(void)
 {
   Init();
@@ -20409,6 +20411,7 @@ int main(void)
   printf("UnitTest44\n"); UnitTest44();
   printf("UnitTest45\n"); UnitTest45();
   printf("UnitTest46\n"); UnitTest46();
+  printf("UnitTest47\n"); UnitTest47();
 
   printf("Done\n");
 }
