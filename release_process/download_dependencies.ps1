@@ -12,8 +12,17 @@ function Download-GLPK {
     $tarPath      = Join-Path $tempFolder "glpk-$Version.tar"
     $untarredPath = Join-Path $tempFolder "glpk-$Version"
 
+    # official download link is http://ftpmirror.gnu.org/gnu/glpk/glpk-$Version.tar.gz but is has version 4.35 and up only
+    # for older versions we should use https://ftp.gnu.org/old-gnu/glpk/glpk-$Version.tar.gz but it lacks versions 3.2.3-4.34
+    # so we use  https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-$Version.tar.gz which sometimes is too busy and fails with:
+    #    A connection attempt failed because the connected party did not properly respond after a period of time.
+    $downloadUri = "http://ftpmirror.gnu.org/gnu/glpk/glpk-$Version.tar.gz"
+    if ([version]$Version -lt [version]"4.35") {
+        $downloadUri = "https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-$Version.tar.gz"
+    }
+
     New-Item -ItemType Directory -Path $Destination
-    Invoke-WebRequest -Uri https://slackware.cs.utah.edu/pub/gnu/glpk/glpk-$Version.tar.gz -OutFile $tarGzPath
+    Invoke-WebRequest -Uri $downloadUri -OutFile $tarGzPath
     7z x $tarGzPath -o"$tempFolder" # creates file at $tarPath
     7z x -aoa -ttar -spe $tarPath -o"$untarredPath"
     Move-Item -Path $untarredPath\* -Destination $Destination
