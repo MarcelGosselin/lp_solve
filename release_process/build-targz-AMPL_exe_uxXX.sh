@@ -16,7 +16,7 @@ else # override CC from environment on ux32
     make -f makefile.u CC="$CC"
 fi
 cd ${LPSOLVE_WORKSPACE}/extra/AMPL/solvers/lpsolve
-make -f makefile5stat.u
+make -f makefile5dyn.u
 
 cp ${LPSOLVE_WORKSPACE}/extra/AMPL/solvers/lpsolve/lpsolve ${TAR_CONTENT_FOLDER}
 cp ${LPSOLVE_WORKSPACE}/extra/AMPL/solvers/lpsolve/README ${TAR_CONTENT_FOLDER}
